@@ -1,34 +1,37 @@
-version: '2'
+version: "3"
 services:
   api:
     build: .
     container_name: api
-    command: bash -c "cd /src/rest && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep 5 && cd /src/rest && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
-    links:
+    depends_on:
       - mongo
     volumes:
-      - ${ADBREW_CODEBASE_PATH}/tmp:/tmp
       - ${ADBREW_CODEBASE_PATH}:/src
+      - ./tmp:/tmp
 
   app:
     build: .
     container_name: app
-    command: bash -c "cd /src/app && yarn install && yarn start"
+    command: bash -c "sleep 10 && cd /src/app && yarn install && yarn start"
     ports:
       - "3000:3000"
+    depends_on:
+      - api
     volumes:
       - ${ADBREW_CODEBASE_PATH}:/src
 
   mongo:
-    build: .
+    image: mongo:4.4
     container_name: mongo
     restart: always
     ports:
       - "27017:27017"
     volumes:
-      - ${ADBREW_CODEBASE_PATH}/db/:/data/db
-    command: /usr/bin/mongod --bind_ip 0.0.0.0
+      - mongo-data:/data/db # Changed from bind mount to named volume
+    command: mongod --bind_ip 0.0.0.0
 
-    
+volumes:
+  mongo-data: # Add this section at root level

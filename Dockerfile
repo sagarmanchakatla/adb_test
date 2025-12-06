@@ -1,9 +1,11 @@
 # set base image (host OS)
-FROM python:3.8
+FROM python:3.8-buster
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-RUN apt-get -y update
+RUN echo "deb http://archive.debian.org/debian buster main" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
+    apt-get -y update
 RUN apt-get install -y curl nano wget nginx git
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
@@ -21,7 +23,7 @@ RUN apt-get install -y mongodb-org
 RUN apt-get install -y yarn
 
 # Install PIP
-RUN easy_install pip
+RUN pip install --upgrade pip
 
 
 ENV ENV_TYPE staging
